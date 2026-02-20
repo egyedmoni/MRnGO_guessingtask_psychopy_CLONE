@@ -126,6 +126,7 @@ var stimulus_presentation_train;
 var yesno_response_train;
 var stop_training;
 var training_written_responseClock;
+var end_textbox;
 var textbox_response_training;
 var main_trialClock;
 var stimulus_presentation_main;
@@ -171,10 +172,12 @@ async function experimentInit() {
   
   // Initialize components for Routine "training_written_response"
   training_written_responseClock = new util.Clock();
+  end_textbox = new core.Keyboard({psychoJS: psychoJS, clock: new util.Clock(), waitForStart: true});
+  
   textbox_response_training = new visual.TextBox({
     win: psychoJS.window,
     name: 'textbox_response_training',
-    text: 'Any text\n\nincluding line breaks',
+    text: '',
     placeholder: 'Melyik fogalomra gondoltál?',
     font: 'Arial',
     pos: [0, 0], 
@@ -194,7 +197,7 @@ async function experimentInit() {
     editable: true,
     multiline: true,
     anchor: 'center',
-    depth: 0.0 
+    depth: -1.0 
   });
   
   // Initialize components for Routine "main_trial"
@@ -733,6 +736,7 @@ function training_stimulus_presentationRoutineEnd(snapshot) {
 
 
 var training_written_responseMaxDurationReached;
+var _end_textbox_allKeys;
 var training_written_responseMaxDuration;
 var training_written_responseComponents;
 function training_written_responseRoutineBegin(snapshot) {
@@ -749,12 +753,16 @@ function training_written_responseRoutineBegin(snapshot) {
     routineTimer.reset();
     training_written_responseMaxDurationReached = false;
     // update component parameters for each repeat
-    textbox_response_training.setText('Any text\n\nincluding line breaks');
+    end_textbox.keys = undefined;
+    end_textbox.rt = undefined;
+    _end_textbox_allKeys = [];
+    textbox_response_training.setText('');
     textbox_response_training.refresh();
     psychoJS.experiment.addData('training_written_response.started', globalClock.getTime());
     training_written_responseMaxDuration = null
     // keep track of which components have finished
     training_written_responseComponents = [];
+    training_written_responseComponents.push(end_textbox);
     training_written_responseComponents.push(textbox_response_training);
     
     for (const thisComponent of training_written_responseComponents)
@@ -772,6 +780,35 @@ function training_written_responseRoutineEachFrame() {
     t = training_written_responseClock.getTime();
     frameN = frameN + 1;// number of completed frames (so 0 is the first frame)
     // update/draw components on each frame
+    
+    // *end_textbox* updates
+    if (t >= 0.0 && end_textbox.status === PsychoJS.Status.NOT_STARTED) {
+      // keep track of start time/frame for later
+      end_textbox.tStart = t;  // (not accounting for frame time here)
+      end_textbox.frameNStart = frameN;  // exact frame index
+      
+      // keyboard checking is just starting
+      psychoJS.window.callOnFlip(function() { end_textbox.clock.reset(); });  // t=0 on next screen flip
+      psychoJS.window.callOnFlip(function() { end_textbox.start(); }); // start on screen flip
+      psychoJS.window.callOnFlip(function() { end_textbox.clearEvents(); });
+    }
+    
+    // if end_textbox is active this frame...
+    if (end_textbox.status === PsychoJS.Status.STARTED) {
+      let theseKeys = end_textbox.getKeys({
+        keyList: typeof 'enter' === 'string' ? ['enter'] : 'enter', 
+        waitRelease: false
+      });
+      _end_textbox_allKeys = _end_textbox_allKeys.concat(theseKeys);
+      if (_end_textbox_allKeys.length > 0) {
+        end_textbox.keys = _end_textbox_allKeys[_end_textbox_allKeys.length - 1].name;  // just the last key pressed
+        end_textbox.rt = _end_textbox_allKeys[_end_textbox_allKeys.length - 1].rt;
+        end_textbox.duration = _end_textbox_allKeys[_end_textbox_allKeys.length - 1].duration;
+        // a response ends the routine
+        continueRoutine = false;
+      }
+    }
+    
     
     // *textbox_response_training* updates
     if (t >= 0.0 && textbox_response_training.status === PsychoJS.Status.NOT_STARTED) {
@@ -824,6 +861,18 @@ function training_written_responseRoutineEnd(snapshot) {
       }
     }
     psychoJS.experiment.addData('training_written_response.stopped', globalClock.getTime());
+    // update the trial handler
+    if (currentLoop instanceof MultiStairHandler) {
+      currentLoop.addResponse(end_textbox.corr, level);
+    }
+    psychoJS.experiment.addData('end_textbox.keys', end_textbox.keys);
+    if (typeof end_textbox.keys !== 'undefined') {  // we had a response
+        psychoJS.experiment.addData('end_textbox.rt', end_textbox.rt);
+        psychoJS.experiment.addData('end_textbox.duration', end_textbox.duration);
+        routineTimer.reset();
+        }
+    
+    end_textbox.stop();
     psychoJS.experiment.addData('textbox_response_training.text',textbox_response_training.text)
     // the Routine "training_written_response" was not non-slip safe, so reset the non-slip timer
     routineTimer.reset();

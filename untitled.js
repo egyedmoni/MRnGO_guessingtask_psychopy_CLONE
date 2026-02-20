@@ -140,7 +140,7 @@ async function experimentInit() {
   text = new visual.TextStim({
     win: psychoJS.window,
     name: 'text',
-    text: 'Hey!\n\nPress any key to continue!',
+    text: 'Hey!\n\nPress any key to continue!\n\nThis is v1',
     font: 'Arial',
     units: undefined, 
     pos: [0, 0], draggable: false, height: 0.05,  wrapWidth: undefined, ori: 0.0,
