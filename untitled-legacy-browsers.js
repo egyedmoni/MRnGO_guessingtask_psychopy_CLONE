@@ -118,8 +118,8 @@ var stimulus_presentation_train;
 var yesno_response_train;
 var stop_training;
 var training_written_responseClock;
-var textbox_response_training;
 var end_textbox;
+var textbox_response_training;
 var main_trialClock;
 var stimulus_presentation_main;
 var yesno_response_main;
@@ -164,6 +164,8 @@ async function experimentInit() {
   
   // Initialize components for Routine "training_written_response"
   training_written_responseClock = new util.Clock();
+  end_textbox = new core.Keyboard({psychoJS: psychoJS, clock: new util.Clock(), waitForStart: true});
+  
   textbox_response_training = new visual.TextBox({
     win: psychoJS.window,
     name: 'textbox_response_training',
@@ -187,10 +189,8 @@ async function experimentInit() {
     editable: true,
     multiline: true,
     anchor: 'center',
-    depth: 0.0 
+    depth: -1.0 
   });
-  
-  end_textbox = new core.Keyboard({psychoJS: psychoJS, clock: new util.Clock(), waitForStart: true});
   
   // Initialize components for Routine "main_trial"
   main_trialClock = new util.Clock();
@@ -749,17 +749,17 @@ function training_written_responseRoutineBegin(snapshot) {
     routineTimer.reset();
     training_written_responseMaxDurationReached = false;
     // update component parameters for each repeat
-    textbox_response_training.setText('');
-    textbox_response_training.refresh();
     end_textbox.keys = undefined;
     end_textbox.rt = undefined;
     _end_textbox_allKeys = [];
+    textbox_response_training.setText('');
+    textbox_response_training.refresh();
     psychoJS.experiment.addData('training_written_response.started', globalClock.getTime());
     training_written_responseMaxDuration = null
     // keep track of which components have finished
     training_written_responseComponents = [];
-    training_written_responseComponents.push(textbox_response_training);
     training_written_responseComponents.push(end_textbox);
+    training_written_responseComponents.push(textbox_response_training);
     
     training_written_responseComponents.forEach( function(thisComponent) {
       if ('status' in thisComponent)
@@ -777,21 +777,6 @@ function training_written_responseRoutineEachFrame() {
     t = training_written_responseClock.getTime();
     frameN = frameN + 1;// number of completed frames (so 0 is the first frame)
     // update/draw components on each frame
-    
-    // *textbox_response_training* updates
-    if (t >= 0.0 && textbox_response_training.status === PsychoJS.Status.NOT_STARTED) {
-      // keep track of start time/frame for later
-      textbox_response_training.tStart = t;  // (not accounting for frame time here)
-      textbox_response_training.frameNStart = frameN;  // exact frame index
-      
-      textbox_response_training.setAutoDraw(true);
-    }
-    
-    
-    // if textbox_response_training is active this frame...
-    if (textbox_response_training.status === PsychoJS.Status.STARTED) {
-    }
-    
     
     // *end_textbox* updates
     if (t >= 0.0 && end_textbox.status === PsychoJS.Status.NOT_STARTED) {
@@ -819,6 +804,21 @@ function training_written_responseRoutineEachFrame() {
         // a response ends the routine
         continueRoutine = false;
       }
+    }
+    
+    
+    // *textbox_response_training* updates
+    if (t >= 0.0 && textbox_response_training.status === PsychoJS.Status.NOT_STARTED) {
+      // keep track of start time/frame for later
+      textbox_response_training.tStart = t;  // (not accounting for frame time here)
+      textbox_response_training.frameNStart = frameN;  // exact frame index
+      
+      textbox_response_training.setAutoDraw(true);
+    }
+    
+    
+    // if textbox_response_training is active this frame...
+    if (textbox_response_training.status === PsychoJS.Status.STARTED) {
     }
     
     // check for quit (typically the Esc key)
@@ -858,7 +858,6 @@ function training_written_responseRoutineEnd(snapshot) {
       }
     });
     psychoJS.experiment.addData('training_written_response.stopped', globalClock.getTime());
-    psychoJS.experiment.addData('textbox_response_training.text',textbox_response_training.text)
     // update the trial handler
     if (currentLoop instanceof MultiStairHandler) {
       currentLoop.addResponse(end_textbox.corr, level);
@@ -871,6 +870,7 @@ function training_written_responseRoutineEnd(snapshot) {
         }
     
     end_textbox.stop();
+    psychoJS.experiment.addData('textbox_response_training.text',textbox_response_training.text)
     // the Routine "training_written_response" was not non-slip safe, so reset the non-slip timer
     routineTimer.reset();
     
