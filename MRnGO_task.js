@@ -126,8 +126,8 @@ var stimulus_presentation_train;
 var yesno_response_train;
 var stop_training;
 var training_written_responseClock;
-var end_textbox;
 var textbox_response_training;
+var end_textinput_button;
 var main_trialClock;
 var stimulus_presentation_main;
 var yesno_response_main;
@@ -140,7 +140,7 @@ async function experimentInit() {
   text = new visual.TextStim({
     win: psychoJS.window,
     name: 'text',
-    text: 'Hey!\n\nPress any key to continue!',
+    text: 'Hey!\n\nPress any key to continue!\n\nThis is v1',
     font: 'Arial',
     units: undefined, 
     pos: [0, 0], draggable: false, height: 0.05,  wrapWidth: undefined, ori: 0.0,
@@ -172,8 +172,6 @@ async function experimentInit() {
   
   // Initialize components for Routine "training_written_response"
   training_written_responseClock = new util.Clock();
-  end_textbox = new core.Keyboard({psychoJS: psychoJS, clock: new util.Clock(), waitForStart: true});
-  
   textbox_response_training = new visual.TextBox({
     win: psychoJS.window,
     name: 'textbox_response_training',
@@ -197,8 +195,32 @@ async function experimentInit() {
     editable: true,
     multiline: true,
     anchor: 'center',
-    depth: -1.0 
+    depth: 0.0 
   });
+  
+  end_textinput_button = new visual.ButtonStim({
+    win: psychoJS.window,
+    name: 'end_textinput_button',
+    text: 'Kész!',
+    font: 'Arvo',
+    pos: [0, 0],
+    size: [0.5, 0.5],
+    padding: null,
+    anchor: 'center',
+    ori: 0.0,
+    units: psychoJS.window.units,
+    color: 'white',
+    fillColor: 'darkgrey',
+    borderColor: null,
+    colorSpace: 'rgb',
+    borderWidth: 0.0,
+    opacity: null,
+    depth: -1,
+    letterHeight: 0.05,
+    bold: true,
+    italic: false,
+  });
+  end_textinput_button.clock = new util.Clock();
   
   // Initialize components for Routine "main_trial"
   main_trialClock = new util.Clock();
@@ -558,6 +580,7 @@ function training_stimulus_presentationRoutineBegin(snapshot) {
     stop_training.keys = undefined;
     stop_training.rt = undefined;
     _stop_training_allKeys = [];
+    stop_training.keys = [];
     psychoJS.experiment.addData('training_stimulus_presentation.started', globalClock.getTime());
     training_stimulus_presentationMaxDuration = null
     // keep track of which components have finished
@@ -663,6 +686,13 @@ function training_stimulus_presentationRoutineEachFrame() {
       }
     }
     
+    // Run 'Each Frame' code from code_train
+    // press Q to stop the training loop
+    if (stop_training.keys.length > 0) {
+        training_loop.finished = true;
+        continueRoutine = false;
+    }
+    
     // check for quit (typically the Esc key)
     if (psychoJS.experiment.experimentEnded || psychoJS.eventManager.getKeys({keyList:['escape']}).length > 0) {
       return quitPsychoJS('The [Escape] key was pressed. Goodbye!', false);
@@ -691,6 +721,8 @@ function training_stimulus_presentationRoutineEachFrame() {
 }
 
 
+var _lastKey;
+var needTextInput;
 function training_stimulus_presentationRoutineEnd(snapshot) {
   return async function () {
     //--- Ending Routine 'training_stimulus_presentation' ---
@@ -723,6 +755,15 @@ function training_stimulus_presentationRoutineEnd(snapshot) {
         }
     
     stop_training.stop();
+    // Run 'End Routine' code from code_train
+    // Get the last key pressed (handles array vs single value)
+    let _lastKey = null;
+    if (typeof key_resp.keys !== 'undefined' && key_resp.keys !== null) {
+      _lastKey = Array.isArray(key_resp.keys) ? key_resp.keys.slice(-1)[0] : key_resp.keys;
+    }
+    
+    // True if last key was 'y' or 'left'
+    needTextInput = ((_lastKey === 'y') || (_lastKey === 'left'));
     // the Routine "training_stimulus_presentation" was not non-slip safe, so reset the non-slip timer
     routineTimer.reset();
     
@@ -736,7 +777,6 @@ function training_stimulus_presentationRoutineEnd(snapshot) {
 
 
 var training_written_responseMaxDurationReached;
-var _end_textbox_allKeys;
 var training_written_responseMaxDuration;
 var training_written_responseComponents;
 function training_written_responseRoutineBegin(snapshot) {
@@ -753,17 +793,21 @@ function training_written_responseRoutineBegin(snapshot) {
     routineTimer.reset();
     training_written_responseMaxDurationReached = false;
     // update component parameters for each repeat
-    end_textbox.keys = undefined;
-    end_textbox.rt = undefined;
-    _end_textbox_allKeys = [];
     textbox_response_training.setText('');
     textbox_response_training.refresh();
+    // reset end_textinput_button to account for continued clicks & clear times on/off
+    end_textinput_button.reset()
+    // Run 'Begin Routine' code from code_whatconc
+    // If the previous response wasn't 'y' or 'left', skip this routine
+    if (!needTextInput) {
+        continueRoutine = false;
+    }
     psychoJS.experiment.addData('training_written_response.started', globalClock.getTime());
     training_written_responseMaxDuration = null
     // keep track of which components have finished
     training_written_responseComponents = [];
-    training_written_responseComponents.push(end_textbox);
     training_written_responseComponents.push(textbox_response_training);
+    training_written_responseComponents.push(end_textinput_button);
     
     for (const thisComponent of training_written_responseComponents)
       if ('status' in thisComponent)
@@ -781,35 +825,6 @@ function training_written_responseRoutineEachFrame() {
     frameN = frameN + 1;// number of completed frames (so 0 is the first frame)
     // update/draw components on each frame
     
-    // *end_textbox* updates
-    if (t >= 0.0 && end_textbox.status === PsychoJS.Status.NOT_STARTED) {
-      // keep track of start time/frame for later
-      end_textbox.tStart = t;  // (not accounting for frame time here)
-      end_textbox.frameNStart = frameN;  // exact frame index
-      
-      // keyboard checking is just starting
-      psychoJS.window.callOnFlip(function() { end_textbox.clock.reset(); });  // t=0 on next screen flip
-      psychoJS.window.callOnFlip(function() { end_textbox.start(); }); // start on screen flip
-      psychoJS.window.callOnFlip(function() { end_textbox.clearEvents(); });
-    }
-    
-    // if end_textbox is active this frame...
-    if (end_textbox.status === PsychoJS.Status.STARTED) {
-      let theseKeys = end_textbox.getKeys({
-        keyList: typeof 'enter' === 'string' ? ['enter'] : 'enter', 
-        waitRelease: false
-      });
-      _end_textbox_allKeys = _end_textbox_allKeys.concat(theseKeys);
-      if (_end_textbox_allKeys.length > 0) {
-        end_textbox.keys = _end_textbox_allKeys[_end_textbox_allKeys.length - 1].name;  // just the last key pressed
-        end_textbox.rt = _end_textbox_allKeys[_end_textbox_allKeys.length - 1].rt;
-        end_textbox.duration = _end_textbox_allKeys[_end_textbox_allKeys.length - 1].duration;
-        // a response ends the routine
-        continueRoutine = false;
-      }
-    }
-    
-    
     // *textbox_response_training* updates
     if (t >= 0.0 && textbox_response_training.status === PsychoJS.Status.NOT_STARTED) {
       // keep track of start time/frame for later
@@ -824,6 +839,50 @@ function training_written_responseRoutineEachFrame() {
     if (textbox_response_training.status === PsychoJS.Status.STARTED) {
     }
     
+    
+    // *end_textinput_button* updates
+    if (t >= 0 && end_textinput_button.status === PsychoJS.Status.NOT_STARTED) {
+      // keep track of start time/frame for later
+      end_textinput_button.tStart = t;  // (not accounting for frame time here)
+      end_textinput_button.frameNStart = frameN;  // exact frame index
+      
+      end_textinput_button.setAutoDraw(true);
+    }
+    
+    
+    // if end_textinput_button is active this frame...
+    if (end_textinput_button.status === PsychoJS.Status.STARTED) {
+    }
+    
+    if (end_textinput_button.status === PsychoJS.Status.STARTED) {
+      // check whether end_textinput_button has been pressed
+      if (end_textinput_button.isClicked) {
+        if (!end_textinput_button.wasClicked) {
+          // store time of first click
+          end_textinput_button.timesOn.push(end_textinput_button.clock.getTime());
+          // store time clicked until
+          end_textinput_button.timesOff.push(end_textinput_button.clock.getTime());
+        } else {
+          // update time clicked until;
+          end_textinput_button.timesOff[end_textinput_button.timesOff.length - 1] = end_textinput_button.clock.getTime();
+        }
+        if (!end_textinput_button.wasClicked) {
+          // end routine when end_textinput_button is clicked
+          continueRoutine = false;
+          
+        }
+        // if end_textinput_button is still clicked next frame, it is not a new click
+        end_textinput_button.wasClicked = true;
+      } else {
+        // if end_textinput_button is clicked next frame, it is a new click
+        end_textinput_button.wasClicked = false;
+      }
+    } else {
+      // keep clock at 0 if end_textinput_button hasn't started / has finished
+      end_textinput_button.clock.reset();
+      // if end_textinput_button is clicked next frame, it is a new click
+      end_textinput_button.wasClicked = false;
+    }
     // check for quit (typically the Esc key)
     if (psychoJS.experiment.experimentEnded || psychoJS.eventManager.getKeys({keyList:['escape']}).length > 0) {
       return quitPsychoJS('The [Escape] key was pressed. Goodbye!', false);
@@ -861,19 +920,10 @@ function training_written_responseRoutineEnd(snapshot) {
       }
     }
     psychoJS.experiment.addData('training_written_response.stopped', globalClock.getTime());
-    // update the trial handler
-    if (currentLoop instanceof MultiStairHandler) {
-      currentLoop.addResponse(end_textbox.corr, level);
-    }
-    psychoJS.experiment.addData('end_textbox.keys', end_textbox.keys);
-    if (typeof end_textbox.keys !== 'undefined') {  // we had a response
-        psychoJS.experiment.addData('end_textbox.rt', end_textbox.rt);
-        psychoJS.experiment.addData('end_textbox.duration', end_textbox.duration);
-        routineTimer.reset();
-        }
-    
-    end_textbox.stop();
     psychoJS.experiment.addData('textbox_response_training.text',textbox_response_training.text)
+    psychoJS.experiment.addData('end_textinput_button.numClicks', end_textinput_button.numClicks);
+    psychoJS.experiment.addData('end_textinput_button.timesOn', end_textinput_button.timesOn);
+    psychoJS.experiment.addData('end_textinput_button.timesOff', end_textinput_button.timesOff);
     // the Routine "training_written_response" was not non-slip safe, so reset the non-slip timer
     routineTimer.reset();
     

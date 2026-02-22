@@ -758,8 +758,8 @@ function training_stimulus_presentationRoutineEnd(snapshot) {
     // Run 'End Routine' code from code_train
     // Get the last key pressed (handles array vs single value)
     let _lastKey = null;
-    if (typeof key_resp.keys !== 'undefined' && key_resp.keys !== null) {
-      _lastKey = Array.isArray(key_resp.keys) ? key_resp.keys.slice(-1)[0] : key_resp.keys;
+    if (typeof yesno_response_train.keys !== 'undefined' && yesno_response_train.keys !== null) {
+      _lastKey = Array.isArray(yesno_response_train.keys) ? yesno_response_train.keys.slice(-1)[0] : yesno_response_train.keys;
     }
     
     // True if last key was 'y' or 'left'
