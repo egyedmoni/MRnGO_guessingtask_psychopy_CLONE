@@ -575,6 +575,7 @@ function training_stimulus_presentationRoutineBegin(snapshot) {
     stop_training.keys = undefined;
     stop_training.rt = undefined;
     _stop_training_allKeys = [];
+    stop_training.keys = [];
     psychoJS.experiment.addData('training_stimulus_presentation.started', globalClock.getTime());
     training_stimulus_presentationMaxDuration = null
     // keep track of which components have finished
@@ -681,6 +682,13 @@ function training_stimulus_presentationRoutineEachFrame() {
       }
     }
     
+    // Run 'Each Frame' code from code_train
+    // press Q to stop the training loop
+    if (stop_training.keys.length > 0) {
+        training_loop.finished = true;
+        continueRoutine = false;
+    }
+    
     // check for quit (typically the Esc key)
     if (psychoJS.experiment.experimentEnded || psychoJS.eventManager.getKeys({keyList:['escape']}).length > 0) {
       return quitPsychoJS('The [Escape] key was pressed. Goodbye!', false);
@@ -709,6 +717,8 @@ function training_stimulus_presentationRoutineEachFrame() {
 }
 
 
+var _lastKey;
+var needTextInput;
 function training_stimulus_presentationRoutineEnd(snapshot) {
   return async function () {
     //--- Ending Routine 'training_stimulus_presentation' ---
@@ -741,6 +751,15 @@ function training_stimulus_presentationRoutineEnd(snapshot) {
         }
     
     stop_training.stop();
+    // Run 'End Routine' code from code_train
+    // Get the last key pressed (handles array vs single value)
+    let _lastKey = null;
+    if (typeof key_resp.keys !== 'undefined' && key_resp.keys !== null) {
+      _lastKey = Array.isArray(key_resp.keys) ? key_resp.keys.slice(-1)[0] : key_resp.keys;
+    }
+    
+    // True if last key was 'y' or 'left'
+    needTextInput = ((_lastKey === 'y') || (_lastKey === 'left'));
     // the Routine "training_stimulus_presentation" was not non-slip safe, so reset the non-slip timer
     routineTimer.reset();
     
@@ -774,6 +793,11 @@ function training_written_responseRoutineBegin(snapshot) {
     textbox_response_training.refresh();
     // reset end_textinput_button to account for continued clicks & clear times on/off
     end_textinput_button.reset()
+    // Run 'Begin Routine' code from code_whatconc
+    // If the previous response wasn't 'y' or 'left', skip this routine
+    if (!needTextInput) {
+        continueRoutine = false;
+    }
     psychoJS.experiment.addData('training_written_response.started', globalClock.getTime());
     training_written_responseMaxDuration = null
     // keep track of which components have finished

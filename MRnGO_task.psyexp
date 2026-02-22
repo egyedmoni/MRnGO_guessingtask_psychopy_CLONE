@@ -345,6 +345,23 @@
         <Param val="from exp settings" valType="str" updates="None" name="units"/>
         <Param val="" valType="code" updates="None" name="validator"/>
       </ButtonComponent>
+      <CodeComponent name="code_whatconc" plugin="None">
+        <Param val="" valType="extendedCode" updates="constant" name="Before Experiment"/>
+        <Param val="" valType="extendedCode" updates="constant" name="Before JS Experiment"/>
+        <Param val="" valType="extendedCode" updates="constant" name="Begin Experiment"/>
+        <Param val="" valType="extendedCode" updates="constant" name="Begin JS Experiment"/>
+        <Param val="// If the previous response wasn't 'y' or 'left', skip this routine&amp;#10;if (!needTextInput) {&amp;#10;    continueRoutine = false;&amp;#10;}" valType="extendedCode" updates="constant" name="Begin JS Routine"/>
+        <Param val="# PYTHON&amp;#10;# If the previous response wasn't 'y' or 'left', skip this routine&amp;#10;if not needTextInput:&amp;#10;    continueRoutine = False&amp;#10;" valType="extendedCode" updates="constant" name="Begin Routine"/>
+        <Param val="Both" valType="str" updates="None" name="Code Type"/>
+        <Param val="" valType="extendedCode" updates="constant" name="Each Frame"/>
+        <Param val="" valType="extendedCode" updates="constant" name="Each JS Frame"/>
+        <Param val="" valType="extendedCode" updates="constant" name="End Experiment"/>
+        <Param val="" valType="extendedCode" updates="constant" name="End JS Experiment"/>
+        <Param val="" valType="extendedCode" updates="constant" name="End JS Routine"/>
+        <Param val="" valType="extendedCode" updates="constant" name="End Routine"/>
+        <Param val="False" valType="bool" updates="None" name="disabled"/>
+        <Param val="code_whatconc" valType="code" updates="None" name="name"/>
+      </CodeComponent>
     </Routine>
     <Routine name="training_stimulus_presentation">
       <RoutineSettingsComponent name="training_stimulus_presentation" plugin="None">
@@ -442,9 +459,9 @@
         <Param val="// press Q to stop the training loop&amp;#10;if (stop_training.keys.length &gt; 0) {&amp;#10;    training_loop.finished = true;&amp;#10;    continueRoutine = false;&amp;#10;}&amp;#10;" valType="extendedCode" updates="constant" name="Each JS Frame"/>
         <Param val="" valType="extendedCode" updates="constant" name="End Experiment"/>
         <Param val="" valType="extendedCode" updates="constant" name="End JS Experiment"/>
-        <Param val="" valType="extendedCode" updates="constant" name="End JS Routine"/>
-        <Param val="" valType="extendedCode" updates="constant" name="End Routine"/>
-        <Param val="True" valType="bool" updates="None" name="disabled"/>
+        <Param val="// Get the last key pressed (handles array vs single value)&amp;#10;let _lastKey = null;&amp;#10;if (typeof key_resp.keys !== 'undefined' &amp;&amp; key_resp.keys !== null) {&amp;#10;  _lastKey = Array.isArray(key_resp.keys) ? key_resp.keys.slice(-1)[0] : key_resp.keys;&amp;#10;}&amp;#10;&amp;#10;// True if last key was 'y' or 'left'&amp;#10;needTextInput = ((_lastKey === 'y') || (_lastKey === 'left'));" valType="extendedCode" updates="constant" name="End JS Routine"/>
+        <Param val="# PYTHON (auto-translated to JS by PsychoPy if &quot;Both&quot; is selected)&amp;#10;# Get the last key pressed (handles list vs single value)&amp;#10;_lastKey = None&amp;#10;if key_resp.keys is not None:&amp;#10;    _lastKey = key_resp.keys[-1] if isinstance(key_resp.keys, list) else key_resp.keys&amp;#10;&amp;#10;needTextInput = (_lastKey in ['y', 'left'])&amp;#10;" valType="extendedCode" updates="constant" name="End Routine"/>
+        <Param val="False" valType="bool" updates="None" name="disabled"/>
         <Param val="code_train" valType="code" updates="None" name="name"/>
       </CodeComponent>
     </Routine>
